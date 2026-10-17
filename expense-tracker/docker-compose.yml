@@ -1,0 +1,33 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      PORT: "3001"
+      CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:4200}"
+      DIAL_API_KEY: "${DIAL_API_KEY:-}"
+      DIAL_CHAT_URL: "${DIAL_CHAT_URL:-}"
+      DIAL_RECEIPT_URL: "${DIAL_RECEIPT_URL:-}"
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3001/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "4200:80"

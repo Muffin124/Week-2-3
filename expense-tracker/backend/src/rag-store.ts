@@ -1,0 +1,102 @@
+export interface RagDocument {
+  id: string;
+  text: string;
+  metadata: Record<string, unknown>;
+}
+
+export interface RagMatch extends RagDocument {
+  score: number;
+}
+
+const DIMENSIONS = 64;
+
+function tokenize(value: string): string[] {
+  return value.toLowerCase().match(/[a-ząćęłńóśźż0-9]+/gi) ?? [];
+}
+
+function embed(value: string): number[] {
+  const vector = Array<number>(DIMENSIONS).fill(0);
+  for (const token of tokenize(value)) {
+    let hash = 2166136261;
+    for (const character of token) {
+      hash ^= character.charCodeAt(0);
+      hash = Math.imul(hash, 16777619);
+    }
+    const index = Math.abs(hash) % DIMENSIONS;
+    vector[index] += 1;
+  }
+  return vector;
+}
+
+function cosineSimilarity(left: number[], right: number[]): number {
+  let dot = 0;
+  let leftLength = 0;
+  let rightLength = 0;
+  for (let index = 0; index < DIMENSIONS; index += 1) {
+    dot += left[index] * right[index];
+    leftLength += left[index] ** 2;
+    rightLength += right[index] ** 2;
+  }
+  return leftLength && rightLength
+    ? dot / Math.sqrt(leftLength * rightLength)
+    : 0;
+}
+
+export class ReceiptVectorStore {
+  private readonly entries: Array<RagDocument & { vector: number[] }>;
+
+  constructor(documents: RagDocument[]) {
+    this.entries = documents.map((document) => ({
+      ...document,
+      vector: embed(document.text),
+    }));
+  }
+
+  search(query: string, limit = 8): RagMatch[] {
+    const queryVector = embed(query);
+    return this.entries
+      .map(({ vector, ...document }) => ({
+        ...document,
+        score: cosineSimilarity(queryVector, vector),
+      }))
+      .sort((left, right) => right.score - left.score)
+      .slice(0, limit);
+  }
+}
+
+export function buildFinancialDocuments(
+  expenses: unknown[],
+  transactions: unknown[]
+): RagDocument[] {
+  const receiptDocuments = expenses.map((expense, index) => {
+    const value = asRecord(expense);
+    const items = Array.isArray(value.items) ? value.items : [];
+    const itemNames = items
+      .map((item) => asRecord(item).name)
+      .filter((name): name is string => typeof name === 'string')
+      .join(', ');
+    const merchant = typeof value.merchantName === 'string' ? value.merchantName : 'Unknown merchant';
+    return {
+      id: typeof value.id === 'string' ? value.id : `receipt-${index + 1}`,
+      text: `${merchant} ${value.date ?? ''} ${itemNames} total ${value.totalAmount ?? ''}`,
+      metadata: { source: 'receipt', record: expense },
+    };
+  });
+
+  const transactionDocuments = transactions.map((transaction, index) => {
+    const value = asRecord(transaction);
+    return {
+      id: typeof value.id === 'string' ? value.id : `transaction-${index + 1}`,
+      text: `${value.type ?? ''} ${value.category ?? ''} ${value.description ?? ''} ${value.date ?? ''} amount ${value.amount ?? ''}`,
+      metadata: { source: 'transaction', record: transaction },
+    };
+  });
+
+  return [...receiptDocuments, ...transactionDocuments];
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+    ? value as Record<string, unknown>
+    : {};
+}

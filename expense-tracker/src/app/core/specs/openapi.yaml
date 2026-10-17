@@ -1,0 +1,141 @@
+  openapi: 3.0.3 
+  info: 
+    title: Expense Tracker API 
+    version: 1.0.0
+    description: Specification for the Expense Tracker API, which allows users to manage their expenses and income aswell as generate reports and summaries using images from recepits. 
+
+  paths: 
+    /api/receipts/analyze: 
+      post: 
+        summary: Analyze a receipt image and extract relevant information. 
+        operationID: analyzeReceipt
+        requestBody: 
+          required: true 
+          content: 
+          multipart/form-data: 
+            schema: 
+              type: object
+              properties: 
+                file: 
+                  type: string
+                  format: binary 
+                  description: File with a receipt photo to be analyzed. 
+        responses: 
+          '200': 
+            description: Successfully analyzed the receipt and extracted information. 
+          content: 
+            application-json: 
+              schema: 
+              $ref : '#/components/schemas/ReceiptAnalysisResponse'
+
+    /api/ai/chat: 
+      post: 
+        summary: Sends a message to the AI chat model and recives a message back with data. 
+        operationID: chatWithAI 
+        requestBody: 
+          required: true 
+          content: 
+            application/json: 
+              schema: 
+                $ref: '#/components/schemas/ChatRequest'
+        responses: 
+          '200': 
+            description: Successfully recived a response from the AI chat model. 
+            content: 
+              application/json: 
+                schema: 
+                  $ref: '#/components/schemas/ChatResponse'
+
+  components: 
+    schemas: 
+      ReceiptItem: 
+        type: object
+        required: 
+          - name 
+          - price 
+          - category 
+          - quantity 
+        properties:
+          name: 
+            type: string 
+            example: "Milk 3.2%"
+            description: Name of the item on the receipt. 
+          price: 
+            type: number
+            format: float 
+            example: 3.99
+            description: Price of the item on the receipt. 
+          category: 
+            type: string
+            example: "Food"
+            enum: ["Food", "Electronics", "Clothing", "Household", "Other"] 
+            description: Category of the item on the receipt. 
+          quantity: 
+            type: number 
+            example: 2 
+            description: Quantity of the item on the receipt. 
+
+
+      ReceiptAnalysisResponse: 
+        type: object 
+        required: 
+          -merchantName
+          -date 
+          -totalAmount
+          -items
+        properties: 
+          merchantName: 
+            type: string 
+            example: "Biedronka"
+          date: 
+            type: string 
+            format: date 
+            example: "2023-05-15"
+          totalAmount: 
+            type: number 
+            format: float
+            example: 15.99
+          items: 
+            type: array
+            items: 
+              $ref: '#/components/schemas/ReceiptItem'
+      ChatMessage: 
+        type: object 
+        required: 
+          - role 
+          - content 
+        properties: 
+        role: 
+          type: string 
+          enum: ["user", "assistant", "system"] 
+          description: Role of the message sender.
+        content: 
+          type: string 
+      ChatRequest: 
+        type: object 
+        required: 
+          - message
+        properties: 
+          message:
+            type: string
+            description: Current user question.
+          expenses:
+            type: array
+            items:
+              type: object
+          transactions:
+            type: array
+            items:
+              type: object
+          history:
+            type: array 
+            items: 
+              $ref: '#/components/schemas/ChatMessage'
+      ChatResponse: 
+        type: object 
+        required: 
+          - reply
+        properties: 
+          reply: 
+            type: string 
+            example: "Based on your products that you have purchased, I recommend you to make omelette"

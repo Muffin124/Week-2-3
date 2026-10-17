@@ -1,0 +1,160 @@
+<div class="expense-list-container">
+  <section class="transaction-form">
+    <h2>Add financial transaction</h2>
+    <select [(ngModel)]="transactionType">
+      <option value="income">Income</option>
+      <option value="expense">Expense</option>
+    </select>
+    @if (transactionType === 'expense') {
+      <input [(ngModel)]="merchantName" placeholder="Store" />
+      <input [(ngModel)]="itemName" placeholder="Product name" />
+      <select [(ngModel)]="itemCategory">
+        <option value="Food">Food</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Clothing">Clothing</option>
+        <option value="Household">Household</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="number" min="0.01" step="0.01" [(ngModel)]="itemPrice" placeholder="Product price (PLN)" />
+      <input type="number" min="1" step="1" [(ngModel)]="itemQuantity" placeholder="Quantity" />
+      <button type="button" (click)="addTransaction()">Add product</button>
+      @if (pendingItems.length > 0) {
+        <div class="pending-items">
+          @for (item of pendingItems; track $index) {
+            <div>
+              {{ item.name }} (x{{ item.quantity }}) —
+              {{ item.price * item.quantity | currency:'PLN':'symbol':'1.2-2' }}
+              <button type="button" (click)="removePendingItem($index)">Remove</button>
+            </div>
+          }
+        </div>
+        <button type="button" (click)="saveManualReceipt()">Save complete receipt</button>
+      }
+    } @else {
+      <input type="number" min="0.01" step="0.01" [(ngModel)]="transactionAmount" placeholder="Income amount (PLN)" />
+      <input [(ngModel)]="transactionCategory" placeholder="Income category" />
+      <input [(ngModel)]="transactionDescription" placeholder="Income description (optional)" />
+    }
+    <input type="date" [(ngModel)]="transactionDate" />
+    @if (transactionType === 'income') {
+      <button type="button" (click)="addTransaction()">Add income</button>
+    }
+  </section>
+
+  <section class="balance-summary">
+    <span>Balance:</span>
+    <strong>{{ balance() | currency:'PLN':'symbol':'1.2-2' }}</strong>
+  </section>
+
+  @if (incomes().length > 0) {
+    <section class="income-history">
+      <header class="list-header">
+        <h2>Income History</h2>
+      </header>
+      <div class="expenses-grid">
+        @for (income of incomes(); track income.id) {
+          <div class="expense-card income-card">
+            <div class="card-header">
+              <div class="merchant-info">
+                <h3>{{ income.category }}</h3>
+                <span class="expense-date">📅 {{ income.date }}</span>
+                <span>{{ income.description }}</span>
+              </div>
+              <div class="amount-actions">
+                <span class="total-amount">
+                  {{ income.amount | currency:'PLN':'symbol':'1.2-2' }}
+                </span>
+                <button
+                  class="btn-delete"
+                  type="button"
+                  (click)="deleteTransaction(income.id)"
+                  title="Delete income"
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  @if (categoryChart().length > 0) {
+    <section class="spending-chart">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Overview</span>
+          <h2>Spending by category</h2>
+        </div>
+        <span class="chart-caption">All saved receipts</span>
+      </div>
+      <div class="chart-bars">
+        @for (item of categoryChart(); track item.category) {
+          <div class="chart-row">
+            <div class="chart-label">
+              <span>{{ item.category }}</span>
+              <strong>{{ item.amount | currency:'PLN':'symbol':'1.2-2' }}</strong>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill" [style.width.%]="item.percentage"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <header class="list-header">
+    <h2>Expense History</h2>
+    <div class="total-summary">
+      <span>Total spent:</span>
+      <strong>{{ grandTotal() | currency:'PLN':'symbol':'1.2-2' }}</strong>
+    </div>
+  </header>
+
+  @if (expenses().length === 0) {
+    <div class="empty-state">
+      <p>🎈 No saved receipts. Scan your first receipt above!</p>
+    </div>
+  } @else {
+    <div class="expenses-grid">
+      @for (expense of expenses(); track expense.id) {
+        <div class="expense-card">
+          <div class="card-header">
+            <div class="merchant-info">
+              <h3>{{ expense.merchantName }}</h3>
+              <span class="expense-date">📅 {{ expense.date }}</span>
+            </div>
+            <div class="amount-actions">
+              <span class="total-amount">
+                {{ expense.totalAmount | currency:'PLN':'symbol':'1.2-2' }}
+              </span>
+              <button class="btn-delete" (click)="deleteExpense(expense.id)" title="Delete expense">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <details class="items-dropdown">
+            <summary>Item details ({{ expense.items.length }})</summary>
+            <ul class="items-list">
+              @for (item of expense.items; track $index) {
+                <li>
+                  <span class="item-cat">[{{ item.category }}]</span>
+                  <span class="item-name">
+                    {{ item.name || 'Produkt' }} 
+                    (x{{ item.quantity || 1 }})
+                  </span>
+                  <span class="item-price">
+                    {{ (item.price || 0) | currency:'PLN':'symbol':'1.2-2' }}
+                  </span>
+                </li>
+              }
+            </ul>
+          </details>
+        </div>
+      }
+    </div>
+  }
+</div>

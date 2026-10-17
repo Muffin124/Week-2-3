@@ -1,0 +1,60 @@
+@if (isOpen()) {
+<div class="chat-backdrop" (click)="close()">
+  <div class="chat-container" (click)="$event.stopPropagation()">
+  <div class="chat-header">
+    <h2>AI Assistant</h2>
+    <button type="button" class="close-button" (click)="close()" [disabled]="isLoading()" aria-label="Close chat">×</button>
+  </div>
+
+  <div class="messages-container">
+    @if (messages().length === 0) {
+      <div class="empty-state">
+        No messages yet. Ask a question to start a conversation.
+      </div>
+    }
+
+    @for (msg of messages(); track $index) {
+      <div class="message-bubble" [class.user]="msg.sender === 'user'" [class.assistant]="msg.sender === 'assistant'">
+        <div class="sender-label">
+          {{ msg.sender === 'user' ? 'You' : 'Assistant' }}
+        </div>
+        <div class="message-content">
+          {{ msg.text }}
+        </div>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="message-bubble assistant loading">
+        <span>Generating response...</span>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="error-banner">
+        {{ errorMessage() }}
+      </div>
+    }
+  </div>
+
+  <div class="input-container">
+    <textarea
+      [ngModel]="userInput()"
+      (ngModelChange)="userInput.set($event)"
+      (keydown.enter)="$event.preventDefault(); sendMessage()"
+      placeholder="Type a message..."
+      rows="2"
+      [disabled]="isLoading()"
+    ></textarea>
+    
+    <button 
+      type="button" 
+      (click)="sendMessage()" 
+      [disabled]="!userInput().trim() || isLoading()"
+    >
+      Send
+    </button>
+  </div>
+  </div>
+  </div>
+  }

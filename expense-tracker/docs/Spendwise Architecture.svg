@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="900" viewBox="0 0 1500 900" role="img" aria-labelledby="title desc">
+  <title id="title">Spendwise data flow architecture</title>
+  <desc id="desc">Angular client stores financial records locally and sends grounded chat or receipt requests to the Node API. The API validates requests, retrieves evidence, calls the configured model provider, validates the response, and returns it to the client.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <style>
+      .lane { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 2; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 2; rx: 12; }
+      .store { fill: #eff6ff; stroke: #2563eb; }
+      .agent { fill: #f0fdf4; stroke: #16a34a; }
+      .guard { fill: #fff7ed; stroke: #ea580c; }
+      .provider { fill: #faf5ff; stroke: #9333ea; }
+      .title { font: 700 24px Arial, sans-serif; fill: #0f172a; }
+      .label { font: 700 17px Arial, sans-serif; fill: #0f172a; }
+      .body { font: 14px Arial, sans-serif; fill: #334155; }
+      .edge { stroke: #334155; stroke-width: 2.5; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 8 6; }
+    </style>
+  </defs>
+
+  <rect width="1500" height="900" fill="#ffffff"/>
+  <text x="750" y="42" text-anchor="middle" class="title">Spendwise — end-to-end data flow</text>
+
+  <!-- Angular Client -->
+  <rect x="30" y="75" width="355" height="770" class="lane" rx="16"/>
+  <text x="55" y="112" class="title">Angular client</text>
+  <rect x="65" y="145" width="285" height="105" class="box"/>
+  <text x="207" y="177" text-anchor="middle" class="label">Receipt scanner &amp; dashboard</text>
+  <text x="207" y="203" text-anchor="middle" class="body">Manual receipts, income, expenses</text>
+  <text x="207" y="224" text-anchor="middle" class="body">Monthly balance and categories</text>
+  <rect x="65" y="300" width="285" height="105" class="box"/>
+  <text x="207" y="332" text-anchor="middle" class="label">ChatComponent</text>
+  <text x="207" y="358" text-anchor="middle" class="body">Question + current records</text>
+  <text x="207" y="379" text-anchor="middle" class="body">Renders validated reply/error</text>
+  <rect x="65" y="470" width="285" height="130" class="box store"/>
+  <text x="207" y="502" text-anchor="middle" class="label">StorageService</text>
+  <text x="207" y="528" text-anchor="middle" class="body">ExpenseRecord</text>
+  <text x="207" y="549" text-anchor="middle" class="body">FinancialTransaction</text>
+  <text x="207" y="570" text-anchor="middle" class="body">Chat history (last 20)</text>
+  <rect x="65" y="665" width="285" height="105" class="box store"/>
+  <text x="207" y="697" text-anchor="middle" class="label">Browser localStorage</text>
+  <text x="207" y="723" text-anchor="middle" class="body">Demo-only client persistence</text>
+  <text x="207" y="744" text-anchor="middle" class="body">No provider secrets</text>
+
+  <!-- Node.js API -->
+  <rect x="425" y="75" width="650" height="770" class="lane" rx="16"/>
+  <text x="450" y="112" class="title">Node.js API (port 3001)</text>
+  <rect x="460" y="145" width="270" height="105" class="box guard"/>
+  <text x="595" y="177" text-anchor="middle" class="label">HTTP boundary</text>
+  <text x="595" y="203" text-anchor="middle" class="body">JSON/body-size validation</text>
+  <text x="595" y="224" text-anchor="middle" class="body">Explicit 4xx/5xx responses</text>
+  <rect x="770" y="145" width="270" height="105" class="box guard"/>
+  <text x="905" y="177" text-anchor="middle" class="label">Receipt endpoint</text>
+  <text x="905" y="203" text-anchor="middle" class="body">POST /api/receipts/analyze</text>
+  <text x="905" y="224" text-anchor="middle" class="body">Image + schema validation</text>
+  <rect x="460" y="300" width="270" height="115" class="box agent"/>
+  <text x="595" y="333" text-anchor="middle" class="label">Chat endpoint</text>
+  <text x="595" y="359" text-anchor="middle" class="body">POST /api/ai/chat</text>
+  <text x="595" y="380" text-anchor="middle" class="body">Grounded request validation</text>
+  <rect x="770" y="300" width="270" height="115" class="box agent"/>
+  <text x="905" y="333" text-anchor="middle" class="label">ReceiptVectorStore</text>
+  <text x="905" y="359" text-anchor="middle" class="body">Deterministic hashed embeddings</text>
+  <text x="905" y="380" text-anchor="middle" class="body">Top relevant records</text>
+  <rect x="460" y="475" width="580" height="135" class="box agent"/>
+  <text x="750" y="508" text-anchor="middle" class="label">Deterministic AI orchestration</text>
+  <text x="750" y="536" text-anchor="middle" class="body">Finance → Context → Pattern → Critic/Validator → Response</text>
+  <text x="750" y="560" text-anchor="middle" class="body">System prompt forbids unsupported claims and prompt injection</text>
+  <text x="750" y="584" text-anchor="middle" class="body">Chat history limited to validated last 10 messages</text>
+  <rect x="460" y="670" width="270" height="105" class="box guard"/>
+  <text x="595" y="702" text-anchor="middle" class="label">Model client</text>
+  <text x="595" y="728" text-anchor="middle" class="body">Env-only DIAL_API_KEY</text>
+  <text x="595" y="749" text-anchor="middle" class="body">Timeout + payload validation</text>
+  <rect x="770" y="670" width="270" height="105" class="box guard"/>
+  <text x="905" y="702" text-anchor="middle" class="label">Response guardrails</text>
+  <text x="905" y="728" text-anchor="middle" class="body">Reject empty/malformed output</text>
+  <text x="905" y="749" text-anchor="middle" class="body">Reject invalid receipt totals/items</text>
+
+  <!-- External Provider -->
+  <rect x="1115" y="75" width="355" height="770" class="lane" rx="16"/>
+  <text x="1140" y="112" class="title">External provider</text>
+  <rect x="1150" y="310" width="285" height="125" class="box provider"/>
+  <text x="1292" y="345" text-anchor="middle" class="label">DIAL model endpoints</text>
+  <text x="1292" y="372" text-anchor="middle" class="body">Chat and multimodal receipt</text>
+  <text x="1292" y="393" text-anchor="middle" class="body">No client-side credentials</text>
+  <text x="1292" y="414" text-anchor="middle" class="body">Provider failures are surfaced</text>
+
+  <!-- Connections -->
+  <path d="M207 250 V300" class="edge"/>
+  <path d="M207 405 V470" class="edge"/>
+  <path d="M207 600 V665" class="edge dashed"/>
+  <path d="M350 350 H460" class="edge"/>
+  
+  <!-- Corrected HTTP boundary flow -->
+  <path d="M350 195 H460" class="edge"/>
+  <path d="M730 195 H770" class="edge"/>
+  
+  <path d="M730 357 H770" class="edge"/>
+  <path d="M595 415 V475" class="edge"/>
+  <path d="M905 415 V475" class="edge"/>
+  <path d="M750 610 V670" class="edge"/>
+  <path d="M730 722 H770" class="edge"/>
+  
+  <!-- Clear paths around boxes -->
+  <path d="M1040 722 H1095 V435 H1150" class="edge"/>
+  <path d="M1150 372 H1040" class="edge"/>
+  <path d="M1040 195 H1095 V310 H1150" class="edge"/>
+  <path d="M1150 405 H1040" class="edge"/>
+  <path d="M460 540 H390 V350 H350" class="edge dashed"/>
+
+  <text x="1115" y="875" class="body">Solid arrows: request/response flow · Dashed arrows: local persistence/context feed</text>
+</svg>

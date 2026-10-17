@@ -1,0 +1,69 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  min-height: 72px;
+  padding: 0 5vw;
+  color: #fff;
+  background: #172033;
+  box-shadow: 0 4px 18px rgb(23 32 51 / 14%);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-right: auto;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.brand-mark {
+  display: grid;
+  width: 1.85rem;
+  height: 1.85rem;
+  place-items: center;
+  color: #172033;
+  background: #65d6bd;
+  border-radius: 7px;
+  font-size: 0.85rem;
+  transform: rotate(45deg);
+}
+
+.brand-mark::first-letter {
+  transform: rotate(-45deg);
+}
+
+.navbar a {
+  padding: 0.55rem 0.85rem;
+  color: #b8c3d6;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 650;
+}
+
+.navbar a:hover,
+.navbar a.active {
+  color: #fff;
+  background: rgb(255 255 255 / 10%);
+}
+
+.content {
+  width: min(1180px, 92vw);
+  margin: 0 auto;
+  padding: 2.5rem 0 5rem;
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    min-height: 64px;
+    padding: 0 1rem;
+  }
+
+  .content {
+    width: calc(100% - 2rem);
+    padding-top: 1.25rem;
+  }
+}
