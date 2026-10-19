@@ -1,7 +1,7 @@
 import {Injectable } from "@angular/core"; 
 import { inject } from '@angular/core'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
-import { environment_chat} from './environments'
+import { environment } from './environments'
 import { firstValueFrom } from 'rxjs'
 import type { ChatHistoryMessage, ExpenseRecord, FinancialTransaction } from './storage-sevice.service'
 
