@@ -25,7 +25,7 @@ export async function callModel(
   const targetUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
   const requestBody = {
     ...body,
-    model: 'gemini-3.5-flash',
+    model: 'gemini-3.5-flash-lite',
   };
 
   const controller = new AbortController();
