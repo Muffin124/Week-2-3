@@ -57,7 +57,7 @@ export async function runChatAgent({
     'Response Agent: produce the concise final answer for the Angular chat UI.',
   ].join('\n');
   const payload = await callModel(process.env['DIAL_CHAT_URL'], {
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.8-flash',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       ...safeHistory,
