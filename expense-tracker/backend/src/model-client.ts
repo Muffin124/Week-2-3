@@ -24,17 +24,12 @@ export async function callModel(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
 
-  const cleanKey = apiKey.trim();
-  const separator = url.includes('?') ? '&' : '?';
-  const targetUrl = url.includes('key=') ? url : `${url}${separator}key=${cleanKey}`;
-
   try {
-    const response = await fetch(targetUrl, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': cleanKey, // <- Nagłówek dla Google
-        'api-key': cleanKey,
+        'Authorization': `Bearer ${apiKey.trim()}`,
       },
       body: JSON.stringify(body),
       signal: controller.signal,
@@ -42,7 +37,7 @@ export async function callModel(
 
     const payload: unknown = await response.json().catch(() => null);
     if (!response.ok) {
-      console.error('Błąd Google:', response.status, payload);
+      console.error('Google API Error:', response.status, payload);
       throw new Error(`Model provider returned HTTP ${response.status}.`);
     }
     if (!isModelPayload(payload)) {
