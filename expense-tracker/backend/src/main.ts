@@ -11,13 +11,13 @@ async function bootstrap(): Promise<void> {
   app.use(json({ limit: '12mb' }));
 
   
-  const allowedOrigins = [
-    'http://localhost:4200',
-    process.env['CORS_ORIGIN'] 
-  ].filter((origin): origin is string => Boolean(origin));
+  // const allowedOrigins = [
+  //   'http://localhost:4200',
+  //   process.env['CORS_ORIGIN'] 
+  // ].filter((origin): origin is string => Boolean(origin));
 
   app.enableCors({
-    origin: allowedOrigins,
+    origin: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
