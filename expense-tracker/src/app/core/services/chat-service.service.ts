@@ -32,7 +32,7 @@ export class ChatService {
         };
 
         const response = await firstValueFrom(      
-            this.http.post<DialChatResponse>(environment_chat.chatWebhookUrl, body, { headers })
+            this.http.post<DialChatResponse>(environment.chatWebhookUrl, body, { headers })
         )
 
         const reply = response.reply?.trim();
