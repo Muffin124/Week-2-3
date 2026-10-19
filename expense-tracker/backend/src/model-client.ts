@@ -15,30 +15,37 @@ export async function callModel(
   body: Record<string, unknown>
 ): Promise<ModelPayload> {
   const apiKey = process.env['DIAL_API_KEY'];
-  if (!apiKey || !url) {
+  if (!apiKey) {
     throw new ConfigurationError(
-      'Configure DIAL_API_KEY and the model endpoint before calling an agent.'
+      'Configure DIAL_API_KEY before calling an agent.'
     );
   }
+
+  // Wymuszamy w 100% poprawny, sprawdzony adres i model:
+  const targetUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions';
+  const requestBody = {
+    ...body,
+    model: 'gemini-3.5-flash',
+  };
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
 
   try {
-    const response = await fetch(url, {
+    const response = await fetch(targetUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${apiKey.trim()}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(requestBody),
       signal: controller.signal,
     });
 
     const payload: unknown = await response.json().catch(() => null);
     if (!response.ok) {
       console.error('Google API Error:', response.status, payload);
-      throw new Error(`Model provider returned HTTP ${response.status}.`);
+      throw new Error(`Google API error ${response.status}: ${JSON.stringify(payload)}`);
     }
     if (!isModelPayload(payload)) {
       throw new Error('Model provider returned an invalid JSON response.');
