@@ -47,7 +47,7 @@ export async function runReceiptAgent({
   }
 
   const payload = await callModel(process.env['DIAL_RECEIPT_URL'], {
-    model: 'gemini-3.8-flash',
+    model: 'gemini-3.5-flash',
     messages: [
       {
         role: 'user',
